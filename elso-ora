@@ -1,0 +1,45 @@
+SELECT * FROM konyvtar.konyv;
+
+SELECT isbn, ar/oldalszam atlag, 1, 13*2, sqrt(25), tema as topic FROM KONYVTAR.konyv; 
+
+SELECT power(2,10) FROM dual;
+
+SELECT * FROM dual;
+
+SELECT ar, cim as cim2_hahaha FROM konyvtar.konyv ORDER BY cim2_hahaha;
+
+SELECT * FROM konyvtar.konyv WHERE ar BETWEEN 5000 AND 10000 ORDER BY ar;
+
+SELECT * FROM konyvtar.konyv WHERE NOT( ar >= 5000 OR tema='horror');
+
+SELECT * FROM konyvtar.konyv WHERE NOT(ar >= 5000 AND  tema='horror'); 
+
+SELECT * FROM konyvtar.konyv WHERE ar NOT BETWEEN 5000 AND 10000 ORDER BY ar;
+
+SELECT * FROM konyvtar.konyv WHERE ar IS NOT NULL; -- asd
+
+SELECT * FROM konyvtar.konyv WHERE tema NOT IN('horror','sci-fi','krimi');
+
+SELECT * FROM konyvtar.konyv WHERE cim LIKE '_z%';
+
+SELECT kiado, LOWER(kiado), UPPER(kiado), INITCAP(kiado) FROM konyvtar.konyv;
+
+SELECT cim, INSTR(cim,'a',3,2) FROM konyvtar.konyv;
+
+SELECT replace(cim, 'an', 'almafa') FROM konyvtar.konyv;
+
+SELECT 'alma' || 'fa' FROM konyvtar.konyv;
+
+SELECT LENGTH(cim), cim FROM konyvtar.konyv;
+
+SELECT tema, DECODE(tema, 'krimi', 'k', 'horror', 'h', '?') FROM konyvtar.konyv;
+
+SELECT tema, NVL(tema, 'NINCS') FROM konyvtar.konyv;
+
+SELECT user, sysdate FROM dual;
+
+SELECT TO_CHAR(sysdate,'yyyy.mm.dd hh24:mi:ss') FROM dual; -- 2020.02.12 13:37:40
+
+
+
+SELECT ar / oldalszam, round(ar,oldalszam), trunc(ar/oldalszam), round(ar/oldalszam*1000, -2), trunc(ar/oldalszam*1000, -2) FROM konyvtar.konyv;
