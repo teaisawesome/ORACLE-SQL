@@ -1,0 +1,44 @@
+-- dátumkezelő függvények 
+SELECT sysdate FROM dual;
+SELECT to_char(sysdate, 'yyyy.mm.dd hh24:mi:ss') as ido FROM dual; -- lesz zh-ba
+SELECT to_char(sysdate, 'yyyy_mm_dd hh24:mi:ss') as ido FROM dual;
+SELECT to_char(sysdate, 'yyyy*mm') as ido FROM dual;
+SELECT to_char(sysdate, 'mm month Month MONTH mon Mon MON') as ido FROM dual;
+SELECT to_char(sysdate, 'd dd ddd day Day DAY dy Dy DY') FROM dual;
+SELECT to_char(szuletesi_datum, 'Day') FROM konyvtar.tag;
+SELECT to_char(sysdate, 'sssss') FROM dual;
+SELECT to_char(to_date('-2020.01.01','syyyy.mm.dd'), 'syyyy') FROM dual;
+
+SELECT to_char(sysdate+1, 'yyyy.mm.dd hh24:mi:ss') as ido FROM dual; -- +1 -> holnapi nap
+SELECT to_char(sysdate+1/24/60, 'yyyy.mm.dd hh24:mi:ss') as ido FROM dual; -- 
+SELECT to_char(sysdate+7, 'yyyy.mm.dd hh24:mi:ss') as ido FROM dual;
+SELECT to_char(add_months(sysdate, 1), 'yyyy.mm.dd hh24:mi:ss') as ido FROM dual; -- 1 hónap
+SELECT to_char(add_months(sysdate, 12), 'yyyy.mm.dd hh24:mi:ss') as ido FROM dual; -- 1 év
+SELECT sysdate-to_date('2020.01.01 12:01:01', 'yyyy.mm.dd hh24:mi:ss') FROM dual;
+SELECT (sysdate-to_date('2020.01.01 12:01:01', 'yyyy.mm.dd hh24:mi:ss'))*24*60 FROM dual;-- hány perc telt el január óta
+SELECT months_between(sysdate, to_date('2020.01.01 12:01:01', 'yyyy.mm.dd hh24:mi:ss')) FROM dual;
+SELECT months_between(sysdate, to_date('1997.11.20 16:01:01', 'yyyy.mm.dd hh24:mi:ss'))/12 FROM dual; -- saját évem kiszámolása ZH feladat
+SELECT user from dual; -- ZH 
+SELECT tema, nvl(tema, 'ÜRES__'), ar, nvl(to_char(ar), 'URES') FROM konyvtar.konyv; -- nvl -> ha null ertek van akkor a masodik paramteret irja ki
+SELECT tema, decode(tema, 'informatika', 'i', 'mesekönyv', 'm', 'történelem', 't', '?????') FROM konyvtar.konyv; -- az utolsó oszlop az egyéb, ha az első igaz akkor az utána lévőt adja vissza
+
+-- keressük azokat a konyveket, amelyeknek a témája informatika vagy történelem vagy szépirodalom, vagy ar 1000 alatt vagy 10000 felett van.
+-- A lista legyen téma szerint csökkenően, azon belül ár szerint növekvően rendezve.
+SELECT tema, ar, cim FROM konyvtar.konyv WHERE tema IN('informatika', 'történelem', 'szépirodalom') OR ar NOT BETWEEN 1000 AND 10000 ORDER BY tema DESC, ar;
+
+
+-- Keressük azokat a könyveket, amelyeknek az oldalankénti ára több, mint 3 és a témája krimi vagy 400-nél több oldalas és a
+-- kiadója nevében szerepel a kiadó szó (kicsi vagy nagy). A lista legyen téma, kiadó, és oldalszám szerint rendezett.
+SELECT tema, kiado, oldalszam, ar/oldalszam, cim  FROM konyvtar.konyv
+WHERE (ar/oldalszam > 3 AND tema = 'krimi') OR (oldalszam > 400 AND LOWER(kiado) LIKE '%kiadó%') ORDER BY tema, kiado, oldalszam;
+
+-- Keressük azokat a könyveket, amelyekre teljesül, hogy a témája történelem vagy az ára < 5000, és az is teljesül,
+-- hogy több, mint 20 évvel ezelőtt adták ki vagy az oldalszáma nincs kitöltve. A lista legyen téma, azon belül a kiadás dátuma szerint rendezve.
+SELECT tema, to_char(kiadas_datuma, 'yyyy.mm.dd'), ar, oldalszam, cim FROM konyvtar.konyv, dual WHERE (tema = 'történelem' OR ar < 5000) AND (months_between(sysdate, kiadas_datuma)/12 > 20 OR oldalszam IS NULL) ORDER BY tema, kiadas_datuma;
+SELECT tema, to_char(kiadas_datuma, 'yyyy.mm.dd'), ar, oldalszam, cim FROM konyvtar.konyv, dual WHERE (tema = 'történelem' OR ar < 5000) AND (add_months(sysdate, -20*12) > kiadas_datuma OR oldalszam IS NULL) ORDER BY tema, kiadas_datuma;
+
+-- Keressük meg azokat a tagokat akiknek a nevében pontosan 2 db a betű szerepel vagy 20 évnél idősebbek.
+-- A lista legyen év, azon belül név szerint rendezett. név, év, születési dátum
+
+SELECT vezeteknev||' '||keresztnev nev, extract(year from szuletesi_datum) ev, to_char(szuletesi_datum, 'yyyy'), to_char(szuletesi_datum, 'yyyy')
+FROM KONYVTAR.tag WHERE LOWER(vezeteknev||keresztnev) LIKE  '%a%a%' AND NOT LIKE '%a%a%a' OR MONTHS_BETWEEN(sysdate, szuletesi_datum)/12 > 20;
